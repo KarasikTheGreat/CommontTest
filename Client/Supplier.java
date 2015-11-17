@@ -1,31 +1,36 @@
 package Client;
 
 import Server.Materials;
-import Server.MaterialsWithCounter;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Supplier {
     private List<Materials> materials;
 
-    public Supplier(Iterable<MaterialsWithCounter> materialsWithCounter) {
+    public Supplier(ConcurrentHashMap<Materials, AtomicInteger> materialsOnStorage) {
         materials = new ArrayList<>();
-        for (MaterialsWithCounter materialWithCounter : materialsWithCounter) {
-            materials.add(materialWithCounter.getMaterial());
+        for (ConcurrentHashMap.Entry<Materials,AtomicInteger> material : materialsOnStorage.entrySet()) {
+            materials.add(material.getKey());
         }
     }
 
-    public MaterialsWithCounter createSupply() throws NullPointerException{
-        Random rnd = new Random();
+    public Pair<Materials, Integer> createSupply() throws NullPointerException{
+
         if (materials.size() == 0) {
 
             throw new NullPointerException();
         }
+        Random rnd = new Random();
         int numberOfMaterial = rnd.nextInt(materials.size());
         int counter = rnd.nextInt(4) + 1;
-        return new MaterialsWithCounter(materials.get(numberOfMaterial), counter);
+        Materials material = materials.get(numberOfMaterial);
+        Pair<Materials,Integer> materialsWithAmount = new Pair<>(material,counter);
+        return  materialsWithAmount;
     }
 }
 

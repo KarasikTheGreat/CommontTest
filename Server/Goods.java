@@ -2,16 +2,16 @@ package Server;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Goods implements Serializable {
     private String name;
-    private List<MaterialsWithCounter> requiredMaterials;
+    private Map<Materials, Integer> requiredMaterials;
 
-    public Goods(String name, List<MaterialsWithCounter> materials) {
+    public Goods(String name, Map<Materials, Integer> materials) {
         this.name = name;
-        requiredMaterials = new ArrayList<>(materials);
+        requiredMaterials = new HashMap<>(materials);
     }
 
     public String getName() {
@@ -20,14 +20,15 @@ public class Goods implements Serializable {
 
     public int getPrice() {
         int price = 0;
-        for (MaterialsWithCounter materialsWithCounter : requiredMaterials) {
-            price += materialsWithCounter.getPrice();
+        for (HashMap.Entry<Materials,Integer> materialsWithCounter : requiredMaterials.entrySet()) {
+            Materials currentMaterial = materialsWithCounter.getKey();
+            price += materialsWithCounter.getValue()*currentMaterial.getPrice();
         }
 
         return price;
     }
 
-    public Iterable<MaterialsWithCounter> getRequiredMaterials() {
+    public Map<Materials, Integer> getRequiredMaterials() {
         return requiredMaterials;
     }
 

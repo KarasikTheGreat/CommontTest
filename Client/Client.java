@@ -2,8 +2,12 @@ package Client;
 
 
 import Server.Goods;
-import Server.MaterialsWithCounter;
+import Server.Materials;
 import Server.Order;
+import javafx.util.Pair;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
     private static final int PORT = 5555;
@@ -52,13 +56,13 @@ public class Client {
         int money = connection.getMoney();
         Iterable<Goods> goodsList = connection.getGoodsList();
         Iterable<Order> orderHistory = connection.getOrderistory();
-        Iterable<MaterialsWithCounter> materialsLeft = connection.getMaterialsOnStorage();
+        ConcurrentHashMap<Materials, AtomicInteger> materialsLeft = connection.getMaterialsOnStorage();
         connection.closeConnection();
 
         StatsReport reporter = new StatsReport();
         reporter.printOrdersByClientsWithGrandTotal(startBalance, orderHistory);
         reporter.printOrdersByGoods(orderHistory, goodsList);
-        reporter.printMaterialsOnStorage(materialsLeft);
+        reporter.materialsLeftInStorage(materialsLeft);
 
 
 
@@ -99,10 +103,10 @@ public class Client {
     public static void createAndProcessSupplier(int frequencyOfRequests) {
         new Thread(() -> {
             ConnectionProtocol connection = new ConnectionProtocol(hostname, PORT);
-            Iterable<MaterialsWithCounter> materialsWithCounter = connection.getMaterialsOnStorage();
-            Supplier supplier = new Supplier(materialsWithCounter);
+            ConcurrentHashMap<Materials, AtomicInteger> materials = connection.getMaterialsOnStorage();
+            Supplier supplier = new Supplier(materials);
             while (atLeastOneCustomerAlive) {
-                MaterialsWithCounter supply = supplier.createSupply();
+                Pair<Materials, Integer> supply = supplier.createSupply();
                 connection.sellMaterial(supply);
                 try {
                     Thread.sleep(frequencyOfRequests);

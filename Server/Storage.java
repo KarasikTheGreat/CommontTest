@@ -1,10 +1,11 @@
 package Server;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class Storage {
     private ConcurrentMap<Materials, AtomicInteger> numberOfMaterials;
@@ -15,14 +16,11 @@ public class Storage {
 
     }
 
-    public void addNewMaterial(Materials material, int amount) {
-        numberOfMaterials.put(material, new AtomicInteger(amount));
-    }
 
 
-    public void addMaterialsToStorage(MaterialsWithCounter materialWithCounter) {
-        Materials material = materialWithCounter.getMaterial();
-        int amount = materialWithCounter.getAmount();
+
+    public void addMaterialsToStorage(Materials material, int amount) {
+
         AtomicInteger prev = numberOfMaterials.putIfAbsent(material, new AtomicInteger(amount));
         if (prev != null) {
             prev.addAndGet(amount);
@@ -30,22 +28,20 @@ public class Storage {
 
     }
 
-
-    public Iterable<MaterialsWithCounter> getMaterialsOnStorage() {
-        return numberOfMaterials.entrySet().stream().map(entry -> new MaterialsWithCounter(entry.getKey(), entry.getValue().intValue())).collect(Collectors.toList());
+    public ConcurrentMap<Materials, AtomicInteger> getNumberOfMaterials() {
+        return numberOfMaterials;
     }
 
-
     public boolean produceGoods(Goods goods, int amount) {
-        Iterable<MaterialsWithCounter> requiredMaterials = goods.getRequiredMaterials();
+        Map<Materials, Integer> requiredMaterials = goods.getRequiredMaterials();
 
         {
-            for (MaterialsWithCounter materialsWithCounter : requiredMaterials) {
-                Materials currentMaterial = materialsWithCounter.getMaterial();
+            for (HashMap.Entry<Materials,Integer> materialsWithCounter : requiredMaterials.entrySet()) {
+                Materials currentMaterial = materialsWithCounter.getKey();
 
                 if (numberOfMaterials.containsKey(currentMaterial)) {
 
-                    if (numberOfMaterials.get(currentMaterial).intValue() < materialsWithCounter.getAmount() * amount) {
+                    if (numberOfMaterials.get(currentMaterial).intValue() < materialsWithCounter.getValue() * amount) {
                         return false;
                     }
 
@@ -54,9 +50,9 @@ public class Storage {
         }
 
 
-        for (MaterialsWithCounter materials : requiredMaterials) {
-            Materials currentMaterial = materials.getMaterial();
-            int newAmountOnMaterials = numberOfMaterials.get(currentMaterial).intValue() - materials.getAmount() * amount;
+        for (HashMap.Entry<Materials,Integer> materialsWithCounter : requiredMaterials.entrySet()) {
+            Materials currentMaterial = materialsWithCounter.getKey();
+            int newAmountOnMaterials = numberOfMaterials.get(currentMaterial).intValue() - materialsWithCounter.getValue() * amount;
             numberOfMaterials.put(currentMaterial, new AtomicInteger(newAmountOnMaterials));
         }
         return true;

@@ -1,11 +1,13 @@
 package Client;
 
 import Server.Goods;
-import Server.MaterialsWithCounter;
+import Server.Materials;
 import Server.Order;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class StatsReport {
 
@@ -19,7 +21,7 @@ public class StatsReport {
                 report.put(order.getClientsID(), order.getPrice());
             }
         }
-        String result = "\nOrders By Clients:\nID  |  Order sum  |  Money left\n";
+        String result = "\nOrders by clients:\nID  |  Order sum  |  Money left\n";
         for (Map.Entry<Integer, Integer> entry: report.entrySet()) {
             result += String.format("%-4d",entry.getKey()) + "|  "
                     + String.format("%-11d", entry.getValue()) + "|  "
@@ -28,7 +30,7 @@ public class StatsReport {
         System.out.println(result);
     }
     public static void printOrdersByGoods(Iterable<Order> history, Iterable<Goods> goodsList) {
-        String result = "\nOrders By Goods:\nName of Product  |  Order count  |  Sell count  |  Money from sells\n";
+        String result = "\nOrders by goods:\nName of Product  |Orders amount  |Sells amount  |  Profit\n";
         for (Goods goods: goodsList) {
             int orderCount = 0;
             int sellCount = 0;
@@ -47,12 +49,14 @@ public class StatsReport {
         }
         System.out.println(result);
     }
-    public static void printMaterialsOnStorage(Iterable<MaterialsWithCounter> storage) {
-        String result = "Materials on Storage:\nName           |  Count  |  Price\n";
-        for (MaterialsWithCounter materialWithCount: storage) {
-            result += String.format("%-15s", materialWithCount.getMaterial().getName()) + "|  "
-                    + String.format("%-7d", materialWithCount.getAmount()) + "|  "
-                    + String.format("%-7d", materialWithCount.getPrice()) + "\n";
+    public static void materialsLeftInStorage(ConcurrentHashMap<Materials, AtomicInteger> materialsLeft) {
+        String result = "Materials left in storage:\nName           | Amount  |  Summary price\n";
+        for (ConcurrentHashMap.Entry<Materials,AtomicInteger> material : materialsLeft.entrySet()) {
+            Materials materials = material.getKey();
+            int currentMaterialPrice = material.getValue().intValue() * materials.getPrice();
+            result += String.format("%-15s", material.getKey()) + "|  "
+                    + String.format("%-7d", material.getValue().intValue()) + "|  "
+                    + String.format("%-7d", currentMaterialPrice) + "\n";
         }
         System.out.println(result);
     }

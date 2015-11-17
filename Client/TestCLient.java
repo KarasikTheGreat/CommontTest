@@ -1,8 +1,7 @@
 package Client;
 
-import Server.Goods;
-import Server.MaterialsWithCounter;
-import Server.Order;
+import Server.Materials;
+import javafx.util.Pair;
 
 public class TestCLient {
     private static final int PORT = 5555;
@@ -11,35 +10,15 @@ public class TestCLient {
     public static void main(String[] args) {
         ConnectionProtocol connectionProtocol = new ConnectionProtocol(hostname, PORT);
         int ID = connectionProtocol.getClientsID();
-        Customer customer = new Customer(15000, ID, 5, connectionProtocol.getGoodsList());
+        Supplier supplier = new Supplier(connectionProtocol.getMaterialsOnStorage());
+        System.out.println(connectionProtocol.getMaterialsOnStorage());
+        Pair<Materials, Integer> pair = supplier.createSupply();
+        System.out.println(pair);
 
-        while (customer.isStillAlive()) {
-            Order order = customer.createOrder();
+        connectionProtocol.sellMaterial(pair);
 
-            if (customer.ableToPayOrder(order)) {
+        System.out.println(connectionProtocol.getMoney());
 
-                if (connectionProtocol.handleOrder(order)) {
-
-                    customer.payOrder(order);
-                } else customer.orderDeclined();
-
-            } else {
-
-                customer.orderDeclined();
-            }
-
-        }
-        int money = connectionProtocol.getMoney();
-        System.out.println(money);
-        StatsReport report = new StatsReport();
-        Iterable<Goods> goodsList = connectionProtocol.getGoodsList();
-
-        Iterable<Order> orderHistory = connectionProtocol.getOrderistory();
-        Iterable<MaterialsWithCounter> materialsLeft = connectionProtocol.getMaterialsOnStorage();
-        connectionProtocol.closeConnection();
-        report.printOrdersByGoods(orderHistory, goodsList);
-        report.printOrdersByClientsWithGrandTotal(15000, orderHistory);
-        report.printMaterialsOnStorage(materialsLeft);
 
     }
 }

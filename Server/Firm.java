@@ -1,5 +1,8 @@
 package Server;
 
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Firm {
 
 
@@ -10,7 +13,7 @@ public class Firm {
     private OrderHistory orderHistory;
     private static final Object lockOrderHistory = new Object();
 
-    Firm(int balance) {
+    public Firm(int balance) {
         this.balance = balance;
         GoodsCreator goodsCreator = new GoodsCreator();
         storage = goodsCreator.getStorage();
@@ -20,7 +23,7 @@ public class Firm {
     }
 
 
-    public  int getBalance() {
+    public int getBalance() {
         synchronized (lockBalance) {
             return balance;
         }
@@ -31,8 +34,8 @@ public class Firm {
         return goodsList.getGoodsList();
     }
 
-    public Iterable<MaterialsWithCounter> getMaterialsOnStorage() {
-        return storage.getMaterialsOnStorage();
+    public ConcurrentMap<Materials, AtomicInteger> getMaterialsOnStorage() {
+        return storage.getNumberOfMaterials();
 
     }
 
@@ -55,11 +58,11 @@ public class Firm {
     }
 
 
-    public boolean buyMaterial(MaterialsWithCounter materials) {
+    public boolean buyMaterial(Materials material, int amount) {
         synchronized (lockBalance) {
-            if (balance < materials.getPrice()) return false;
-            balance -= materials.getPrice();
-            storage.addMaterialsToStorage(materials);
+            if (balance < material.getPrice() * amount) return false;
+            balance -= material.getPrice()*amount;
+            storage.addMaterialsToStorage(material,amount);
         }
         return true;
     }

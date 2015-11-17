@@ -1,15 +1,16 @@
 package Client;
 
-import Server.Commands;
-import Server.Goods;
-import Server.MaterialsWithCounter;
-import Server.Order;
+import Server.*;
+import javafx.util.Pair;
+import sun.net.ConnectionResetException;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionProtocol {
     private String hostname;
@@ -55,11 +56,14 @@ public class ConnectionProtocol {
         return false;
     }
 
-    public boolean sellMaterial(MaterialsWithCounter materialsWithCounter) {
+    public boolean sellMaterial(Pair<Materials, Integer> materialsWithCounter) {
         try {
             objectOutputStream.writeObject(Commands.BUY_MATERIAL);
             objectOutputStream.writeObject(materialsWithCounter);
             return (Boolean) objectInputStream.readObject();
+        } catch (ConnectionResetException e) {
+            connect();
+            return sellMaterial(materialsWithCounter);
         } catch (IOException e) {
             connect();
             return sellMaterial(materialsWithCounter);
@@ -122,10 +126,10 @@ public class ConnectionProtocol {
 
     }
 
-    public Iterable<MaterialsWithCounter> getMaterialsOnStorage() {
+    public ConcurrentHashMap<Materials, AtomicInteger> getMaterialsOnStorage() {
         try {
             objectOutputStream.writeObject(Commands.GET_MATERIALS_ON_STORAGE);
-            return (Iterable<MaterialsWithCounter>) objectInputStream.readObject();
+            return (ConcurrentHashMap<Materials, AtomicInteger>) objectInputStream.readObject();
         } catch (IOException e) {
             connect();
             return getMaterialsOnStorage();

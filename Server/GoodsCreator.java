@@ -1,7 +1,6 @@
 package Server;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class GoodsCreator {
     private Storage storage;
@@ -15,23 +14,25 @@ public class GoodsCreator {
         Materials plate = new Materials("Plate", 420);
 
         storage = new Storage();
-        storage.addNewMaterial(transistor, 100);
-        storage.addNewMaterial(chip, 100);
-        storage.addNewMaterial(graphicCore, 100);
-        storage.addNewMaterial(fan, 100);
-        storage.addNewMaterial(plate, 100);
+        storage.addMaterialsToStorage(transistor, 300);
+        storage.addMaterialsToStorage(chip, 300);
+        storage.addMaterialsToStorage(graphicCore, 300);
+        storage.addMaterialsToStorage(fan, 300);
+        storage.addMaterialsToStorage(plate, 300);
 
-        List<MaterialsWithCounter> proccesorRecipe = new ArrayList<>();
-        proccesorRecipe.add(new MaterialsWithCounter(transistor, 3));
-        proccesorRecipe.add(new MaterialsWithCounter(chip, 3));
-        proccesorRecipe.add(new MaterialsWithCounter(plate,1));
+        HashMap<Materials, Integer> processorRecipe = new HashMap<>();
+        processorRecipe.put(transistor, 1);
+        processorRecipe.put(chip, 3);
+        processorRecipe.put(plate, 1);
 
-        List<MaterialsWithCounter> videocardRecipe = new ArrayList<>();
-        videocardRecipe.add(new MaterialsWithCounter(graphicCore, 2));
-        videocardRecipe.add(new MaterialsWithCounter(fan, 2));
-        videocardRecipe.add(new MaterialsWithCounter(transistor, 2));
 
-        Goods processor = new Goods("Processor", proccesorRecipe);
+        HashMap<Materials, Integer> videocardRecipe = new HashMap<>();
+        videocardRecipe.put(graphicCore, 2);
+        videocardRecipe.put(fan, 2);
+        videocardRecipe.put(transistor, 1);
+
+
+        Goods processor = new Goods("Processor", processorRecipe);
         Goods videoCard = new Goods("Videocard", videocardRecipe);
 
         goodsList = new GoodsList();

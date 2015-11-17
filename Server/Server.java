@@ -1,5 +1,7 @@
 package Server;
 
+import javafx.util.Pair;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,7 +13,7 @@ public class Server {
     static final int PORT = 5555;
     private static Firm firm;
     private static ServerSocket serverSocket;
-    private static Integer lastClientsID = 0;
+    private static Integer lastClientsID = -1;
     private static final Object lockID = new Object();
 
     public static void main(String[] args) {
@@ -19,7 +21,7 @@ public class Server {
             System.out.println("Incorrect arguments. Please enter start balance of firm");
             System.exit(1);
         }
-        int startBalance = 0;
+        int startBalance = -1;
         try {
             startBalance = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
@@ -60,14 +62,15 @@ public class Server {
                                 break;
 
                             case BUY_MATERIAL:
-                                MaterialsWithCounter material = (MaterialsWithCounter) objectInputStream.readObject();
-                                objectOutputStream.writeObject(firm.buyMaterial(material));
+                                Pair<Materials, Integer> supply = (Pair<Materials, Integer>) objectInputStream.readObject();
+                                objectOutputStream.writeObject(firm.buyMaterial(supply.getKey(), supply.getValue()));
                                 break;
 
                             case GET_CLIENTS_ID:
                                 synchronized (lockID) {
-                                    objectOutputStream.writeObject(lastClientsID);
                                     lastClientsID++;
+                                    objectOutputStream.writeObject(lastClientsID);
+
                                 }
                                 break;
                             case GET_BALANCE:
@@ -89,12 +92,12 @@ public class Server {
                                 socket.close();
                                 break loop;
                         }
-                    }catch (ClassNotFoundException e) {
+                    } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+
             }
         }).start();
     }
