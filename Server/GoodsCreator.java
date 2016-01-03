@@ -14,16 +14,16 @@ public class GoodsCreator {
         Materials plate = new Materials("Plate", 420);
 
         storage = new Storage();
-        storage.addMaterialsToStorage(transistor, 300);
-        storage.addMaterialsToStorage(chip, 300);
-        storage.addMaterialsToStorage(graphicCore, 300);
-        storage.addMaterialsToStorage(fan, 300);
-        storage.addMaterialsToStorage(plate, 300);
+        storage.addMaterialsToStorage(transistor, 200);
+        storage.addMaterialsToStorage(chip, 200);
+        storage.addMaterialsToStorage(graphicCore, 200);
+        storage.addMaterialsToStorage(fan, 200);
+        storage.addMaterialsToStorage(plate, 200);
 
         HashMap<Materials, Integer> processorRecipe = new HashMap<>();
         processorRecipe.put(transistor, 1);
-        processorRecipe.put(chip, 3);
-        processorRecipe.put(plate, 1);
+        processorRecipe.put(chip, 2);
+        processorRecipe.put(plate, 2);
 
 
         HashMap<Materials, Integer> videocardRecipe = new HashMap<>();

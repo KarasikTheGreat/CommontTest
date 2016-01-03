@@ -15,10 +15,6 @@ public class Storage {
         numberOfMaterials = new ConcurrentHashMap<Materials, AtomicInteger>();
 
     }
-
-
-
-
     public void addMaterialsToStorage(Materials material, int amount) {
 
         AtomicInteger prev = numberOfMaterials.putIfAbsent(material, new AtomicInteger(amount));
@@ -27,37 +23,27 @@ public class Storage {
         }
 
     }
-
     public ConcurrentMap<Materials, AtomicInteger> getNumberOfMaterials() {
         return numberOfMaterials;
     }
 
     public boolean produceGoods(Goods goods, int amount) {
         Map<Materials, Integer> requiredMaterials = goods.getRequiredMaterials();
-
-        {
-            for (HashMap.Entry<Materials,Integer> materialsWithCounter : requiredMaterials.entrySet()) {
+        synchronized (blockStorage) {
+            for (HashMap.Entry<Materials, Integer> materialsWithCounter : requiredMaterials.entrySet()) {
                 Materials currentMaterial = materialsWithCounter.getKey();
-
                 if (numberOfMaterials.containsKey(currentMaterial)) {
-
                     if (numberOfMaterials.get(currentMaterial).intValue() < materialsWithCounter.getValue() * amount) {
                         return false;
                     }
-
                 }
             }
-        }
-
-
-        for (HashMap.Entry<Materials,Integer> materialsWithCounter : requiredMaterials.entrySet()) {
-            Materials currentMaterial = materialsWithCounter.getKey();
-            int newAmountOnMaterials = numberOfMaterials.get(currentMaterial).intValue() - materialsWithCounter.getValue() * amount;
-            numberOfMaterials.put(currentMaterial, new AtomicInteger(newAmountOnMaterials));
+            for (HashMap.Entry<Materials, Integer> materialsWithCounter : requiredMaterials.entrySet()) {
+                Materials currentMaterial = materialsWithCounter.getKey();
+                int newAmountOnMaterials = numberOfMaterials.get(currentMaterial).intValue() - materialsWithCounter.getValue() * amount;
+                numberOfMaterials.put(currentMaterial, new AtomicInteger(newAmountOnMaterials));
+            }
         }
         return true;
-
     }
-
-
 }

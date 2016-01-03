@@ -6,7 +6,7 @@ public class Order implements Serializable {
 
     private int clientsID;
     private int amountOfGoods;
-    private  Goods goods;
+    private Goods goods;
 
 
     public Order(int clientsID, Goods goods,int amountOfProducts ) {

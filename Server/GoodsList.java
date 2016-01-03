@@ -7,7 +7,7 @@ public class GoodsList {
     private List<Goods> goodsList;
 
     public GoodsList() {
-        goodsList =new ArrayList<>() ;
+        goodsList = new ArrayList<>();
 
     }
 
@@ -16,7 +16,7 @@ public class GoodsList {
         goodsList.add(goods);
     }
 
-    public Iterable<Goods> getGoodsList() {
+    public List<Goods> getGoodsList() {
         return goodsList;
     }
 }

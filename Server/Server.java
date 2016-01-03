@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class Server {
 
-    static final int PORT = 5555;
+    static final int PORT = 3547;
     private static Firm firm;
     private static ServerSocket serverSocket;
     private static Integer lastClientsID = -1;
@@ -21,7 +21,7 @@ public class Server {
             System.out.println("Incorrect arguments. Please enter start balance of firm");
             System.exit(1);
         }
-        int startBalance = -1;
+        int startBalance = 0;
         try {
             startBalance = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
@@ -70,7 +70,6 @@ public class Server {
                                 synchronized (lockID) {
                                     lastClientsID++;
                                     objectOutputStream.writeObject(lastClientsID);
-
                                 }
                                 break;
                             case GET_BALANCE:
@@ -82,6 +81,7 @@ public class Server {
                                 break;
                             case GET_ORDER_HISTORY:
                                 objectOutputStream.writeObject(firm.getOrderHistory());
+                                break;
                             case GET_MATERIALS_ON_STORAGE:
                                 objectOutputStream.writeObject(firm.getMaterialsOnStorage());
                                 break;
@@ -96,7 +96,12 @@ public class Server {
                         e.printStackTrace();
                     }
                 }
-            } catch (IOException e) {
+            }
+//            catch (SocketException e) {
+//
+//            }
+            catch (IOException e) {
+                e.printStackTrace();
 
             }
         }).start();

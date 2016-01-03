@@ -34,7 +34,7 @@ public class Materials implements Serializable {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + price;
+        result = 31 * result ;
         return result;
     }
 
